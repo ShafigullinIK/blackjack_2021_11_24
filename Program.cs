@@ -1,5 +1,4 @@
-﻿
-void PrintArray(int[] array)
+﻿void PrintArray(int[] array)
 {
     for (int i = 0; i < array.Length; i++)
     {
@@ -9,14 +8,14 @@ void PrintArray(int[] array)
 }
 
 
-int[] GetPackOfCards(int number_of_packs, int cards_in_pack, int[] init_pack)
+int[] GetPackOfCards(int number_of_packs, int[] init_pack)
 {
-    int total_cards = cards_in_pack * number_of_packs;
+    int total_cards = init_pack.Length * number_of_packs;
     int[] pack_of_cards = new int[total_cards];
     int index = 0;
     while (index < total_cards)
     {
-        for (int card = 0; card < cards_in_pack; card++)
+        for (int card = 0; card < init_pack.Length; card++)
         {
             pack_of_cards[index++] = init_pack[card];
         }
@@ -92,7 +91,7 @@ int CasinoTakesCards(int[] pack_of_cards, int players_result)
 {
     int points = 0;
     int card = 0;
-    System.Console.WriteLine("Ход казино");
+    System.Console.Write("Ход казино");
     Console.ReadLine();
     do
     {
@@ -109,17 +108,17 @@ void Round(int[] pack_of_cards)
 {
     int casino_result = 1, players_result = 0;
     players_result = UserTakesCards(pack_of_cards); //возврат 0 при переполнении (больше 21)
-    if(players_result == 0) 
+    if (players_result == 0)
     {
-        System.Console.WriteLine("Поздравляем. У Вас перебор.");
+        System.Console.WriteLine("У Вас перебор. Вы проиграли.");
         return;
-    }    
+    }
     casino_result = CasinoTakesCards(pack_of_cards, players_result); //возврат 0 при переполнении (больше 21)
-    if(casino_result == 0) 
+    if (casino_result == 0)
     {
         System.Console.WriteLine("Поздравляем. У казино перебор.");
         return;
-    }  
+    }
     RoundIsOver(players_result, casino_result);
 }
 
@@ -143,14 +142,14 @@ void RoundIsOver(int players_result, int casino_result)
 }
 
 
-int cards_in_pack = 13;
+
 int number_of_packs = 1;
 int[] pack_of_cards;
 int[] init_pack = new int[13] { 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11 };
 
 do
 {
-    pack_of_cards = ShuffleCards(GetPackOfCards(number_of_packs, cards_in_pack, init_pack), 20);
+    pack_of_cards = ShuffleCards(GetPackOfCards(number_of_packs, init_pack), 20);
     Round(pack_of_cards);
 }
 while (NextRound());
