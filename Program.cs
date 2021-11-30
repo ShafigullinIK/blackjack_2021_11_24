@@ -3,7 +3,7 @@
 2, Для игры нам необходима перемешанная колода, поэтому надо в случайном порядке 
 перетасовать карты (или сделать какой-то механизм, чтобы менять порядок карт)
 */
-int numberOfCards = 52;
+int numberOfShuffle = 100;
 string[] cardSuit = new string[] { "треф", "пик", "буби", "червы" };
 string[] cardRank = new string[]
 {"туз", "двойка", "тройка", "четвёрка", "пятерка", "шестёрка", "семёрка",
@@ -38,3 +38,36 @@ void PrintImage(string[,] doubleArray) // вывод колоды на конс�
 }
 string[,] cardDesk = FillCardDesk(cardSuit, cardRank);
 PrintImage(cardDesk);
+Console.WriteLine();
+
+
+string[,] DeskShuffle(string[,] doubleArray, int number)
+{
+    string temp = String.Empty;
+    string temp2 = String.Empty;
+    //int taceCard = 1;
+    while (number != 0)
+    {
+        int i = new Random().Next(0, doubleArray.GetLength(0));
+        int j = new Random().Next(0, doubleArray.GetLength(1));
+        temp = doubleArray[i, j];
+       // Console.Write($"temp = {doubleArray[i, j]}");
+        int k = new Random().Next(0, doubleArray.GetLength(0));
+        int l = new Random().Next(0, doubleArray.GetLength(1));
+        temp2 = doubleArray[k, l];
+        //Console.Write($"temp2 = {doubleArray[k, l]}");
+        if (temp != temp2)
+        {
+            doubleArray[i, j] = temp2;
+            //Console.Write($"card1 = {doubleArray[i, j]}");
+            doubleArray[k, l] = temp;
+            //Console.Write($"card2 = {doubleArray[k, l]}");
+            number = number - 2;
+        }
+
+    }
+    return doubleArray;
+}
+string[,] shuffledCardDesk = DeskShuffle(cardDesk, numberOfShuffle);
+PrintImage(shuffledCardDesk);
+//DeskShuffle(cardDesk, numberOfCards);
