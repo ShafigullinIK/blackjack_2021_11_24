@@ -9,22 +9,22 @@ string[] cardRank = new string[]
 {"туз", "2", "3", "4", "5", "6", "7",
  "8", "9", "10", "валет", "дама", "король"};
 
-string[] RefillArray(string[] array)
+string[] FillCardDesk(string[] rank, string[] suit)
 {
-    string[] array2 = new string[array.Length * 1];
+    string[] shuffledDesk = new string[rank.Length * suit.Length];
     int index = 0;
-    for (int j = 0; j < 1; j++)
+    for (int j = 0; j < suit.Length; j++)
     {
-        for (int i = 0; i < array.Length; i++)
+        for (int i = 0; i < rank.Length; i++)
         {
-            if (index < array2.Length)
+            if (index < shuffledDesk.Length)
             {
-                array2[index] = $"{array[i]}";
+                shuffledDesk[index] = $"{rank[i]}";
                 index++;
             }
         }
     }
-    return array2;
+    return shuffledDesk;
 }
 
 string[] DeskShuffle(string[] array, int number)
@@ -43,16 +43,15 @@ string[] DeskShuffle(string[] array, int number)
             array[l] = temp;
             number = number - 2;
         }
-
     }
     return array;
 }
 
-void PrintImage(string[] doubleArray) // вывод колоды на консоль
+void PrintCards(string[] array) // вывод колоды на консоль
 {
-    for (int j = 0; j < doubleArray.Length; j++)
+    for (int j = 0; j < array.Length; j++)
     {
-        Console.Write($"{doubleArray[j]} ");
+        Console.Write($"{array[j]} ");
     }
     Console.WriteLine();
 }
@@ -78,13 +77,40 @@ int GetSumCard(string[] array)
     return sum;
 }
 
-string[] cardDesk = RefillArray(cardRank);
+string[] CardDrawUser(string[] deck)
+{
+    string[] cardUser = new string[2];
+    for (int i = 0; i < cardUser.Length; i++) 
+    {
+        cardUser[i] = deck[i];
+    }
+    return cardUser;
+}
+string[] CardDrawСroupier(string[] deck)
+{
+    string[] cardСroupier = new string[2];
+    int j = 2;
+    for (int i = 0; i < cardСroupier.Length; i++)
+    {
+        cardСroupier[i] = deck[j++];
+    }
+    return cardСroupier;
+}
+
+string[] cardDesk = FillCardDesk(cardRank, cardSuit);
 //PrintImage(cardDesk);
 //Console.WriteLine();
 
 string[] shuffledCardDesk = DeskShuffle(cardDesk, numberOfShuffle);
-PrintImage(shuffledCardDesk);
+PrintCards(shuffledCardDesk);
 
-int result = GetSumCard(shuffledCardDesk);
-Console.WriteLine(result);
+string[] playersHand = CardDrawUser(shuffledCardDesk);
+string[] croupierHand = CardDrawСroupier(shuffledCardDesk);
+
+int playerResult = GetSumCard(playersHand);
+int croupierResult = GetSumCard(croupierHand);
+
+Console.WriteLine(playerResult);
+Console.WriteLine(croupierResult);
+
 
