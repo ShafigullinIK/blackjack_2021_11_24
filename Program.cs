@@ -47,11 +47,19 @@ string[] DeskShuffle(string[] array, int number)
     return array;
 }
 
-void PrintCards(string[] array) // вывод колоды на консоль
+string RandomSuit(string[] array)
+{
+    int i = new Random().Next(0,array.Length);
+    string text = array[i];
+    return text;
+}
+
+void PrintCards(string[] array, string[] arraySuit) // вывод колоды на консоль
 {
     for (int j = 0; j < array.Length; j++)
     {
-        Console.Write($"{array[j]} ");
+        string suit = RandomSuit(arraySuit);
+        Console.Write($"{array[j]} {suit}, ");
     }
     Console.WriteLine();
 }
@@ -97,15 +105,29 @@ string[] CardDrawСroupier(string[] deck)
     return cardСroupier;
 }
 
+string FindWinner(int result1, int result2)
+{
+    string winner = String.Empty;
+    if(result1 == result2) winner = "Пуш";
+    if(result1 == 21) winner = "Блек-джек. Игрок победил";
+    if(result1 > 21 && result2 < 21) winner = "Перебор, выйграло казино";
+    if(result2 == 21) winner = "Игрок проиграл";
+    if(result1 > result2 && result1 != 21) winner = "Игрок победил";
+    if(result1 < result2) winner = "Игрок проиграл";
+    return winner;
+}
+
 string[] cardDesk = FillCardDesk(cardRank, cardSuit);
 //PrintImage(cardDesk);
 //Console.WriteLine();
 
 string[] shuffledCardDesk = DeskShuffle(cardDesk, numberOfShuffle);
-PrintCards(shuffledCardDesk);
+PrintCards(shuffledCardDesk, cardSuit);
 
 string[] playersHand = CardDrawUser(shuffledCardDesk);
+PrintCards(playersHand, cardSuit);
 string[] croupierHand = CardDrawСroupier(shuffledCardDesk);
+PrintCards(croupierHand, cardSuit);
 
 int playerResult = GetSumCard(playersHand);
 int croupierResult = GetSumCard(croupierHand);
@@ -113,4 +135,9 @@ int croupierResult = GetSumCard(croupierHand);
 Console.WriteLine(playerResult);
 Console.WriteLine(croupierResult);
 
+//5. Определение победителя в этом раунде.
 
+
+
+string gameResult = FindWinner(playerResult, croupierResult);
+Console.WriteLine(gameResult);
