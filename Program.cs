@@ -57,13 +57,6 @@ void PrintImage(string[] doubleArray) // вывод колоды на консо
     Console.WriteLine();
 }
 
-string[] cards = RefillArray(cardRank);
-//PrintImage(cards);
-//Console.WriteLine();
-
-string[] cards2 = DeskShuffle(cards, numberOfShuffle);
-PrintImage(cards2);
-
 int GetSumCard(string[] array)
 {
     int sum = 0;
@@ -85,6 +78,13 @@ int GetSumCard(string[] array)
     return sum;
 }
 
-int result = GetSumCard(cards2);
+string[] cardDesk = RefillArray(cardRank);
+//PrintImage(cardDesk);
+//Console.WriteLine();
+
+string[] shuffledCardDesk = DeskShuffle(cardDesk, numberOfShuffle);
+PrintImage(shuffledCardDesk);
+
+int result = GetSumCard(shuffledCardDesk);
 Console.WriteLine(result);
 
