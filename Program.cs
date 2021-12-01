@@ -6,68 +6,85 @@
 int numberOfShuffle = 100;
 string[] cardSuit = new string[] { "треф", "пик", "буби", "червы" };
 string[] cardRank = new string[]
-{"туз", "двойка", "тройка", "четвёрка", "пятерка", "шестёрка", "семёрка",
- "восьмёрка", "девятка", "десятка", "валет", "дама", "король"};
+{"туз", "2", "3", "4", "5", "6", "7",
+ "8", "9", "10", "валет", "дама", "король"};
 
-string[,] FillCardDesk(string[] array1, string[] array2) // создание колоды
+string[] RefillArray(string[] array)
 {
-    string[,] doubleArray = new string[array1.Length, array2.Length]; // новая колода
-    int indxArray1 = 0; // масть
-    for (int i = 0; i < array1.Length; i++)
+    string[] array2 = new string[array.Length * 1];
+    int index = 0;
+    for (int j = 0; j < 1; j++)
     {
-        int indxArray2 = 0; // ранг карты
-        for (int j = 0; j < array2.Length; j++)
+        for (int i = 0; i < array.Length; i++)
         {
-            doubleArray[i, j] = $"{array2[indxArray2]} {array1[indxArray1]}, ";
-            indxArray2++;
+            if (index < array2.Length)
+            {
+                array2[index] = $"{array[i]}";
+                index++;
+            }
         }
-        indxArray1++;
     }
-    return doubleArray;
+    return array2;
 }
-void PrintImage(string[,] doubleArray) // вывод колоды на консоль
-{
-    for (int i = 0; i < doubleArray.GetLength(0); i++)
-    {
-        for (int j = 0; j < doubleArray.GetLength(1); j++)
-        {
-            Console.Write($"{doubleArray[i, j]}");
-        }
-        Console.WriteLine();
-    }
-}
-string[,] cardDesk = FillCardDesk(cardSuit, cardRank);
-PrintImage(cardDesk);
-Console.WriteLine();
 
-
-string[,] DeskShuffle(string[,] doubleArray, int number)
+string[] DeskShuffle(string[] array, int number)
 {
     string temp = String.Empty;
     string temp2 = String.Empty;
-    //int taceCard = 1;
     while (number != 0)
     {
-        int i = new Random().Next(0, doubleArray.GetLength(0));
-        int j = new Random().Next(0, doubleArray.GetLength(1));
-        temp = doubleArray[i, j];
-       // Console.Write($"temp = {doubleArray[i, j]}");
-        int k = new Random().Next(0, doubleArray.GetLength(0));
-        int l = new Random().Next(0, doubleArray.GetLength(1));
-        temp2 = doubleArray[k, l];
-        //Console.Write($"temp2 = {doubleArray[k, l]}");
+        int i = new Random().Next(0, array.Length);
+        temp = array[i];
+        int l = new Random().Next(0, array.Length);
+        temp2 = array[l];
         if (temp != temp2)
         {
-            doubleArray[i, j] = temp2;
-            //Console.Write($"card1 = {doubleArray[i, j]}");
-            doubleArray[k, l] = temp;
-            //Console.Write($"card2 = {doubleArray[k, l]}");
+            array[i] = temp2;
+            array[l] = temp;
             number = number - 2;
         }
 
     }
-    return doubleArray;
+    return array;
 }
-string[,] shuffledCardDesk = DeskShuffle(cardDesk, numberOfShuffle);
-PrintImage(shuffledCardDesk);
-//DeskShuffle(cardDesk, numberOfCards);
+
+void PrintImage(string[] doubleArray) // вывод колоды на консоль
+{
+    for (int j = 0; j < doubleArray.Length; j++)
+    {
+        Console.Write($"{doubleArray[j]} ");
+    }
+    Console.WriteLine();
+}
+
+string[] cards = RefillArray(cardRank);
+//PrintImage(cards);
+//Console.WriteLine();
+
+string[] cards2 = DeskShuffle(cards, numberOfShuffle);
+PrintImage(cards2);
+
+int GetSumCard(string[] array)
+{
+    int sum = 0;
+    for (int i = 0; i < array.Length; i++)
+    {
+        for (int j = 0; j < 1; j++)
+        {
+            if (Char.IsDigit(array[i][j]) == true)
+            {
+                sum += Convert.ToInt32(array[i]);
+            }
+            else if (array[i][j] != 'т')
+            {
+                sum += 10;
+            }
+            else sum += 11;
+        }
+    }
+    return sum;
+}
+
+int result = GetSumCard(cards2);
+Console.WriteLine(result);
+
