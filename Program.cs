@@ -1,162 +1,301 @@
-﻿int[] Mixing() // Перетасовка колоды карт, метод возвращает массив с 52-мя значениями карт,
-{              // размещенных на случайных позициях 
-    int[] deck = new int[52];
-    for (int i = 0; i < deck.Length; i++)
-    {
-        deck[i] = new Random().Next(1, 14);
-        if (CheckNum(deck[i], deck)) i -= 1;
-    }
-
-    bool CheckNum(int arg, int[] deck)
-    {
-        int count = 0;
-        for (int i = 0; i < deck.Length; i++) if (arg == deck[i]) count += 1;
-        return count > 4;
-    }
-    return deck;
-}
-
-
-(int[], int[]) setUp(int[] deck)            // набор карт игроком и крупье
-{                                           // метод возвращает два массива со значениями карт
-    int[] player = new int[deck.Length];    // массив игрока
-    int[] croupier = new int[deck.Length];  // массив крупье
-    int flag = 0;                           // переменная flag хранит позицию в массиве колоды
-                                            // на которой закончил брать карты игрок
-    player[0] = deck[deck.Length - 1];      // на первую (нулевую) позицию массива игрока записываем значение карты, которая находится в колоде на последней позиции
-    deck[deck.Length - 1] = 0;              // последнюю позицию массива колоды обнуляем
-
-    Console.WriteLine($"Ваша первая карта: {WhatIsCard(player[0])}");
-    if ((!Overload(player)) && player[0] == 1) player[0] = 111;
-
-    for (int i = 1; i < deck.Length - 1; i++)
-    {
-        Console.WriteLine("Ещё? (Да - 'Y', Нет - любая клавиша): ");
-        if (WaitUser())
-        {
-            player[i] = deck[deck.Length - 1 - i];
-            deck[deck.Length - 1 - i] = 0;
-            Console.WriteLine($"Ваша {i + 1}-я карта: {WhatIsCard(player[i])}");
-
-            if ((!Overload(player)) && player[i] == 1) player[i] = 111;
-            if (Overload(player))
-            {
-                Console.WriteLine("У Вас перебор!");
-                flag = i+1;
-                i = deck.Length - 1;
-            }
-
-        }
-        else
-        {
-            flag = i;
-            i = deck.Length - 1;
-        }
-    }
-
-    croupier[0] = deck[deck.Length - flag-1];   // на первую позицию массива крупье (за минусом нулевых позиций, которые забрал игрок)
-                                                // записываем значение карты, которая находится в колоде на последней позиции
-    deck[deck.Length - flag-1] = 0;             // последнюю позицию массива колоды ( за минусом нулевых) обнуляем
-
-    Thread.Sleep(1500);                         // задержка                         
-    Console.Clear();
-
-    Console.WriteLine($"Первый ход крупье. Выпала карта: {WhatIsCard(croupier[0])}");
-    if (croupier[0] == 1) croupier[0] = 111;    //если выпал туз, записываем в массив 111
-
-    for (int j = 1; j < deck.Length - 1; j++)
-    {
-        if (OverloadCroupier(croupier) < 17)
-        {
-            Thread.Sleep(1500);
-            Console.WriteLine($"{j + 1}-й xод крупье.");
-            croupier[j] = deck[deck.Length - (flag + 1) - j];
-            deck[deck.Length - (flag + 1) - j] = 0;
-            Console.WriteLine($"Выпала карта: {WhatIsCard(croupier[j])}");
-
-            if (croupier[j] == 1) croupier[j] = 111;
-            if (OverloadCroupier(croupier) > 21)
-            {
-                Console.WriteLine("У крупье перебор!");
-                j = deck.Length - 1;
-            }
-
-        }
-        else
-        {
-            j = deck.Length - 1;
-        }
-        Thread.Sleep(1500);
-    }
-
-    bool Overload(int[] collection)      // проверка "перебора" у игрока
-    {
-        int sum = 0;
-        for (int i = 0; i < collection.Length; i++)
-        {
-            if (collection[i] < 11) sum += collection[i];
-            else if (collection[i] == 111) sum += collection[i] - 100;
-            else sum += 10;
-        }
-        return sum > 21;
-    }
-
-    int OverloadCroupier(int[] collection)      // проверка "перебора" у крупье
-    {
-        int sum = 0;
-        for (int i = 0; i < collection.Length; i++)
-        {
-            if (collection[i] < 11) sum += collection[i];
-            else if (collection[i] == 111) sum += collection[i] - 100;
-            else sum += 10;
-        }
-        return sum;
-    }
-
-    bool WaitUser()                             //метод (процедура) ожидание ответа пользователя
-    {
-        while (true)
-        {
-            string answer = Console.ReadLine();
-            return answer.ToLower() == "y";     //если нажата "y", то возвращает значение true
-        }
-    }
-
-    string WhatIsCard(int arg)
-    {
-        string ValueCard = string.Empty;
-        if (arg == 1) ValueCard = "Туз";
-        if (arg == 2) ValueCard = "Двойка";
-        if (arg == 3) ValueCard = "Тройка";
-        if (arg == 4) ValueCard = "Четверка";
-        if (arg == 5) ValueCard = "Пятерка";
-        if (arg == 6) ValueCard = "Шестерка";
-        if (arg == 7) ValueCard = "Семерка";
-        if (arg == 8) ValueCard = "Восьмерка";
-        if (arg == 9) ValueCard = "Девятка";
-        if (arg == 10) ValueCard = "Десятка";
-        if (arg == 11) ValueCard = "Валет";
-        if (arg == 12) ValueCard = "Дама";
-        if (arg == 13) ValueCard = "Король";
-        return ValueCard;
-    }
-
-    return (player, croupier);
-}
-
-Console.Clear();
-var score = setUp(Mixing());
-int playerScore = 0;
-int croupierScore = 0;
-
-for (int i = 0; i < score.Item1.Length; i++)
+int[] Mixing(int numCards, int numDecks)
 {
-    if (score.Item1[i] < 11) playerScore += score.Item1[i];
-    else if (score.Item1[i] == 111) playerScore += score.Item1[i] - 100;
-    else playerScore += 10;
-    if (score.Item2[i] < 11) croupierScore += score.Item2[i];
-    else if (score.Item2[i] == 111) croupierScore += score.Item2[i]-100;
-    else croupierScore += 10;
+    int j, temp, fromValueCard; int count = 0; int[] Deck = new int[numCards * numDecks];
+
+    if (numCards == 52) fromValueCard = 2; else fromValueCard = 6;
+
+    for (int k = 0; k < 4 * numDecks; k++)
+    { for (int n = fromValueCard; n < 15; n++) { Deck[count] = n; count += 1; } }
+
+    for (int i = 0; i < Deck.Length; i++)
+    { temp = Deck[i]; j = new Random().Next(i, Deck.Length); Deck[i] = Deck[j]; Deck[j] = temp; }
+
+    return Deck;
 }
-Console.Clear();
-Console.WriteLine($"Счет игрока: {playerScore}, счет крупье: {croupierScore} ");
+
+int RequestNumber(string words) // ввод чисел с проверкой
+{
+    while (true)
+    {
+        Console.Write(words);
+        if (int.TryParse(Console.ReadLine(), out int num) && num > 0) return num;
+        else Console.WriteLine("Что-то вы не то ввели, давайте-ка снова.");
+    }
+}
+
+string[] AskNames()
+{
+    while (true)
+    {
+        Console.Write("Введите имена игроков через запятую: ");
+        string names = Console.ReadLine() + ",Крупье";
+        string[] playersNames = names.Split(new char[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries); //Прошлый код давал ошибку вводя строку "Маша, Паша, Саша", получали массив {"Маша","","Паша","","Cаша"}. Теперь можно вводить как "Маша Паша Саша" так и "Маша, Паша,Саша" и т.п.
+        if (playersNames.Length > 8) Console.WriteLine("За нашим столиком всего 7 кресел, может кто-то подождёт остальных в баре?");
+        else return playersNames;
+    }
+}
+
+(string[] playersNames, int numDecks, int[] balance) Greetings() // Здесь нужно проверить достаточность колод в зависимости от числа игроков
+{
+    string[] playersNames = AskNames();
+    int[] balance = new int[playersNames.Length - 1];
+    int numDecks = RequestNumber("Укажите начальный баланс игроков: ");
+    for (int i = 0; i < balance.Length; i++)
+    {
+        balance[i] = numDecks;
+    }
+    numDecks = RequestNumber("Сколько колод возьмём: "); // Возможно нужно устанавливать количество колод автоматически, в зависимости от числа игроков
+    return (playersNames, numDecks, balance);
+}
+
+int[] MakeBets(string[] playersNames, int[] balance) //опрос всех игроков о их ставке, количество игроков и их балансов должны быть массивы одинакового размера
+{
+    int playersCount = playersNames.Length - 1;
+    int[] betsArray = new int[playersCount];
+    for (int i = 0; i < playersCount; i++)
+    {
+        betsArray[i] = AskForBet(playersNames[i], balance[i]);
+    }
+    return betsArray;
+}
+
+int AskForBet(string playerName, int playerBalance) //метод опроса отдельного игрока, переспрашивает пока ставка не будет больше 0 и меньше баланса.
+{
+    while (true)
+    {
+        int betAmount = RequestNumber($"{playerName} у вас {playerBalance} фишек, делайте вашу ставку: ");
+        if (betAmount <= playerBalance) return betAmount;
+        else Console.WriteLine($"Ставка не может быть меньше 1 или больше количества ваших фишек.");
+    }
+}
+
+(int[,], int) SetUp(string[] playersNames, int[] Deck) // создает двумерный массив, в котором каждая строка - массив карт игроков, столбец - значение карты
+{
+    int playersCount = playersNames.Length, nextCard = Deck.Length - 1;
+    int[,] playersDecks = new int[playersCount, 11]; // массивы колод игроков и крупье, максимальный размер - 11, 
+
+    for (int i = 0; i < playersCount; i++) // первые две карты игроков
+    {
+        for (int j = 0; j < 2; j++)
+        {
+            playersDecks[i, j] = Deck[nextCard--];
+        }
+    }
+    return (playersDecks, nextCard);
+}
+
+int[] Round(int[] deck, int[,] playersDecks, string[] playersNames, int nextCard)
+{
+    int[] playersCardsScores = new int[playersDecks.GetLength(0)];
+    int[] cardsArray = new int[playersDecks.GetLength(1)];
+    Dictionary<int, string> CardNames = new Dictionary<int, string>
+    {
+        [2] = "Двойка",
+        [3] = "Тройка",
+        [4] = "Четверка",
+        [5] = "Пятерка",
+        [6] = "Шестерка",
+        [7] = "Семерка",
+        [8] = "Восьмерка",
+        [9] = "Девятка",
+        [10] = "Десятка",
+        [11] = "Туз",
+        [12] = "Валет",
+        [13] = "Дама",
+        [14] = "Король",
+    };
+    Console.Clear();
+    Console.WriteLine("Р А С К Л А Д:");
+    for (int j = 0; j < playersDecks.GetLength(0); j++)
+    {
+        if (j == playersDecks.GetLength(0) - 1)
+        {
+            Console.Write($"{playersNames[j]}: ");
+            cardsArray[j] = playersDecks[j, 0];
+            Console.Write($"{CardNames[cardsArray[0]]} ");
+        }
+        else
+        {
+            Console.Write($"{playersNames[j]}: ");
+            for (int i = 0; i < 2; i++)
+            {
+                cardsArray[i] = playersDecks[j, i];
+                Console.Write($"{CardNames[cardsArray[i]]} ");
+            }
+        }
+        Console.WriteLine();
+    }
+    Thread.Sleep(5000);                         // задержка                         
+
+    for (int i = 0; i < playersDecks.GetLength(0); i++)
+    {
+        (int playerCardsScore, nextCard) = GamePlayer(i, playersNames, playersDecks, deck, nextCard);
+        playersCardsScores[i] = playerCardsScore;
+        Console.Clear();
+        if (i < playersDecks.GetLength(0) - 1) Console.WriteLine("ПЕРЕХОД ХОДА");
+        Thread.Sleep(1000);
+    }
+    return (playersCardsScores);
+}
+
+(int, int) GamePlayer(int playerIndex, string[] playersNames, int[,] playersDecks, int[] Deck, int nextCard)
+{
+    int[] cardsArray = new int[playersDecks.GetLength(1)];
+    Dictionary<int, string> CardNames = new Dictionary<int, string>
+    {
+        [2] = "Двойка",
+        [3] = "Тройка",
+        [4] = "Четверка",
+        [5] = "Пятерка",
+        [6] = "Шестерка",
+        [7] = "Семерка",
+        [8] = "Восьмерка",
+        [9] = "Девятка",
+        [10] = "Десятка",
+        [11] = "Туз",
+        [12] = "Валет",
+        [13] = "Дама",
+        [14] = "Король",
+    };
+    Console.Clear();
+    Console.Write($"У игрока {playersNames[playerIndex]} выпали карты: ");
+
+    for (int i = 0; i < 2; i++)
+    {
+        cardsArray[i] = playersDecks[playerIndex, i];
+        Console.Write($"{CardNames[cardsArray[i]]} ");
+    }
+    int playerCardsScore = CardsScore(cardsArray);
+    Console.WriteLine(); Console.WriteLine($"Сумма очков: {CardsScore(cardsArray)} ");
+
+    if (CardsScore(cardsArray) > 21) return (playerCardsScore, nextCard);
+
+    for (int j = 2; j < playersDecks.GetLength(1); j++)
+    {
+        if (playerIndex == playersNames.Length - 1)
+        {
+            cardsArray[j] = Deck[nextCard];
+            playersDecks[playerIndex, j] = Deck[nextCard--];
+            Console.Write($"Выпала карта: {CardNames[cardsArray[j]]} ");
+            Console.WriteLine($"Сумма очков: {CardsScore(cardsArray)} ");
+            playerCardsScore = CardsScore(cardsArray);
+            Thread.Sleep(2500);
+            if (CardsScore(cardsArray) > 17)
+            {
+                return (playerCardsScore, nextCard);
+            }
+        }
+        else
+        {
+            if (UserAnswer())
+            {
+                cardsArray[j] = Deck[nextCard];
+                playersDecks[playerIndex, j] = Deck[nextCard--];
+                Console.Write($"Выпала карта: {CardNames[cardsArray[j]]} ");
+                Console.WriteLine($"Сумма очков: {CardsScore(cardsArray)} ");
+                playerCardsScore = CardsScore(cardsArray);
+                Thread.Sleep(2500);
+                if (CardsScore(cardsArray) > 21)
+                {
+                    return (playerCardsScore, nextCard);
+                }
+            }
+            else { j = playersDecks.GetLength(1); return (playerCardsScore, nextCard); }
+        }
+    }
+
+    return (playerCardsScore, nextCard);
+}
+
+bool UserAnswer()                             //метод (процедура) ожидание ответа пользователя
+{
+    Console.WriteLine("Берем карту?");
+    while (true)
+    {
+        string answer = Console.ReadLine();
+        return answer.ToLower() == "y";     //если нажата "y", то возвращает значение true
+    }
+}
+
+// Метод подсчёта наибольшей суммыочков с заданных карт, на входе массив карт заданных как числа (2-14)
+// Для определения блэкджека от суммы 21, результат при блэкджеке =99 (недостижимый простым подсчётом карт)
+int CardsScore(int[] cardsArray)
+{
+    int len = cardsArray.Length;
+    int aceCount = 0;
+    int totalScore = 0;
+    for (int i = 0; i < len; i++)
+    {
+        switch (cardsArray[i])
+        {
+            case < 11:                               //для карт 2-10 по номиналу
+                totalScore += cardsArray[i];
+                break;
+            case 11:
+                totalScore += cardsArray[i];
+                aceCount++;
+                break;
+
+            case > 11:                               //все карты с картинками как 10
+                totalScore += 10;
+                break;
+        }
+    }
+    if (totalScore == 21 && len == 2) { return 99; }  //указатель для отличия БлэкДжека от просто суммы 21
+    while (totalScore > 21 && aceCount > 0)         //если по итогам получили перебор за каждого туза вычитам 10 (начинаем считать его как 1), пока не закончатся тузы или не окажемся ниже 21
+    {
+        totalScore -= 10;
+        aceCount--;
+    }
+    return totalScore;
+}
+
+//метод возвращает изменения баланса игрока, по очкам их карт и величине ставки
+//переборы игрока сюда не попадают (их отлавливаем в процессе игры и сразу вызываем balance[i] += BalanceChangeValue(-1,bets[i]));
+int CompareCardsResult(int playerScoreValue, int dealerScoreValue) //-1 проигра, 0 - ничья, 1 выиграл, 2 выиграл по блэкджеку
+{
+    //условие ничьей
+    if (dealerScoreValue == playerScoreValue) return 0; //сумма карт поровну (при этом никто не перебрал)
+    //условия победы
+    if (playerScoreValue == 99) { return 2; } //победа по блэкджеку (у же не ничья т.е. у крупье не блэкджек)
+    if ((dealerScoreValue > 21 && dealerScoreValue != 99) || playerScoreValue > dealerScoreValue) return 1; //простая победа, у дилера перебор или у игрока сумма выше
+    //все остальные варианты проигрыш
+    return -1; //у крупье больше чем у игрока (нету переборов и блэджеков и т.п.)
+}
+
+//метод изменения баланса игрока
+//при переборе в процессе добора вызываем BalanceChange(-1,betValue), при этом обнуляем положение ставки
+//для всех не выбывших игроков у которых в Bets != 0, производим BalanceChange(CompareCardsResult(playerScore,dealerScore),betValue);
+int BalanceChangeValue(int WinLossValue, int betValue)
+{
+    switch (WinLossValue)
+    {
+        case -1:
+            return -betValue; //результат проигрыш
+        case 0:
+            return 0;         //результат ничья
+        case 1:
+            return betValue;  //результат выигрышь 1 к 1  
+        case 2:
+            return betValue * 3 / 2;    //результат выигрышь 3 к 2 (по Блэкджеку), копейки остаются у казино
+        default:
+            return 0; //результат которого не должно быть!
+    }
+}
+
+void InitGame()
+{
+    (string[] playersNames, int numDecks, int[] balance) = Greetings(); //передаём результат кортежа в переменные
+    int[] bets = MakeBets(playersNames, balance); //заполняем массив принятых ставок
+    RunGame(numDecks, playersNames); //запускаем игру
+}
+
+//Код игры
+void RunGame(int numDecks, string[] playersNames)
+{
+    int[] deck = Mixing(52, numDecks);
+    (int[,] playersDecks, int nextCard) = SetUp(playersNames, deck);
+    Console.WriteLine(String.Join(',', (Round(deck, playersDecks, playersNames, nextCard))));
+}
+
+InitGame();
