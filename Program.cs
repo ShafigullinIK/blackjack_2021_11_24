@@ -165,7 +165,7 @@ int[] Round(int[] deck, int[,] playersDecks, string[] playersNames, int nextCard
     {
         if (playerIndex == playersNames.Length - 1)
         {
-            CheckIn(j, playerIndex, playerCardsScore, nextCard, cardsArray, Deck, playersDecks);
+            CheckIn(j, playerIndex, playerCardsScore, nextCard, cardsArray, Deck, playersDecks); nextCard--;
             Thread.Sleep(2500);
             if (CardsScore(cardsArray) > 17)
             {
@@ -176,7 +176,7 @@ int[] Round(int[] deck, int[,] playersDecks, string[] playersNames, int nextCard
         {
             if (UserAnswer("Берем карту? (напишите \"y\" если да, все что угодно другое если нет)"))
             {
-                CheckIn(j, playerIndex, playerCardsScore, nextCard, cardsArray, Deck, playersDecks);
+                CheckIn(j, playerIndex, playerCardsScore, nextCard, cardsArray, Deck, playersDecks); nextCard--;
                 Thread.Sleep(2500);
                 if (CardsScore(cardsArray) > 21)
                 {
