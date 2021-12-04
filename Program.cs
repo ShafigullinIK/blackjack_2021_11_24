@@ -1,4 +1,4 @@
-//11111111
+﻿﻿//11111111
 //  Специальный коммит
 int[] Mixing(int numCards, int numDecks)
 {
@@ -189,7 +189,7 @@ int[] Round(int[] deck, int[,] playersDecks, string[] playersNames, int nextCard
         }
         else
         {
-            if (UserAnswer())
+            if (UserAnswer("Берем карту? (напишите \"y\" если да, все что угодно другое если нет"))
             {
                 cardsArray[j] = Deck[nextCard];
                 playersDecks[playerIndex, j] = Deck[nextCard--];
@@ -209,9 +209,9 @@ int[] Round(int[] deck, int[,] playersDecks, string[] playersNames, int nextCard
     return (playerCardsScore, nextCard);
 }
 
-bool UserAnswer()                             //метод (процедура) ожидание ответа пользователя
+bool UserAnswer(string MessageValue)                             //метод (процедура) ожидание ответа пользователя
 {
-    Console.WriteLine("Берем карту?");
+    Console.WriteLine(MessageValue);
     while (true)
     {
         string answer = Console.ReadLine();
@@ -253,9 +253,10 @@ int CardsScore(int[] cardsArray)
 }
 
 //метод возвращает изменения баланса игрока, по очкам их карт и величине ставки
-//переборы игрока сюда не попадают (их отлавливаем в процессе игры и сразу вызываем balance[i] += BalanceChangeValue(-1,bets[i]));
-int CompareCardsResult(int playerScoreValue, int dealerScoreValue) //-1 проигра, 0 - ничья, 1 выиграл, 2 выиграл по блэкджеку
+int GetWinLossValue(int playerScoreValue, int dealerScoreValue) //-1 проигра, 0 - ничья, 1 выиграл, 2 выиграл по блэкджеку
 {
+    //самое раннее условие проигрыша игрока
+    if (playerScoreValue > 21 && playerScoreValue != 99) return -1; //если игрок перебрал он проиграл, колода крупье не имеет значения
     //условие ничьей
     if (dealerScoreValue == playerScoreValue) return 0; //сумма карт поровну (при этом никто не перебрал)
     //условия победы
@@ -266,11 +267,9 @@ int CompareCardsResult(int playerScoreValue, int dealerScoreValue) //-1 прои
 }
 
 //метод изменения баланса игрока
-//при переборе в процессе добора вызываем BalanceChange(-1,betValue), при этом обнуляем положение ставки
-//для всех не выбывших игроков у которых в Bets != 0, производим BalanceChange(CompareCardsResult(playerScore,dealerScore),betValue);
-int BalanceChangeValue(int WinLossValue, int betValue)
+int BalanceChangeValue(int winLossValue, int betValue)
 {
-    switch (WinLossValue)
+    switch (winLossValue)
     {
         case -1:
             return -betValue; //результат проигрыш
@@ -285,19 +284,75 @@ int BalanceChangeValue(int WinLossValue, int betValue)
     }
 }
 
+//сообщение о результате игры для игрока
+string WinLossMessage(int winLossValue, int betValue, string playerName, int balance)
+{
+    switch (winLossValue)
+    {
+        case -1:
+            return $"{playerName} ваша ставка {betValue} проиграна. У вас осталось {balance} фишек."; //результат проигрыш
+        case 0:
+            return $"{playerName} сыграл в ничью. У вас всё так же {balance} фишек."; //результат ничья
+        case 1:
+            return $"{playerName} выша ставка {betValue} выиграла и принесла вам {betValue}. Теперь у вас {balance} фишек.";  //результат выигрышь 1 к 1  
+        case 2:
+            return $"{playerName} у вас Блэкджек и ваша ставка {betValue} выиграла вам {betValue * 3 / 2}. Теперь у вас {balance} фишек."; //результат выигрышь 3 к 2 (по Блэкджеку), копейки остаются у казино
+        default:
+            return "Ситуация которой не должно случиться, если вы это читаете, что-то пошло не так"; //результат которого не должно быть!
+    }
+}
+
+// окочание игры, подсчёт ставок, выигрышей и проигрышей
+(int[], int[], int[]) Scoring(int[] balance, int[] bets, int[] playersCardsScores, string[] playersNames)
+{
+    int playersAmount = playersNames.Length;
+    int GameResult = 0;
+    Console.Clear();
+    Console.WriteLine("Раунд окончен: ");
+    for (int i = 0; i < playersAmount - 1; i++)
+    {
+        GameResult = GetWinLossValue(playersCardsScores[i],
+                                     playersCardsScores[playersAmount - 1]);
+
+        balance[i] += BalanceChangeValue(GameResult,
+                                         bets[i]);
+
+        Console.WriteLine(WinLossMessage(GameResult,
+                                         bets[i],
+                                         playersNames[i],
+                                         balance[i]));
+
+        bets[i] = 0;
+        playersCardsScores[i] = 0;
+    }
+    return (balance, bets, playersCardsScores);
+}
+
 void InitGame()
 {
     (string[] playersNames, int numDecks, int[] balance) = Greetings(); //передаём результат кортежа в переменные
-    int[] bets = MakeBets(playersNames, balance); //заполняем массив принятых ставок
-    RunGame(numDecks, playersNames); //запускаем игру
+    
+    int playersAmount = playersNames.Length;
+    int[] bets = new int[playersAmount];
+    int[] playersCardsScores = new int[playersAmount];
+    
+    bool resumeGame = true;
+    while (resumeGame)
+    {
+        bets = MakeBets(playersNames, balance); //заполняем массив принятых ставок
+        playersCardsScores = RunGame(numDecks, playersNames); //запускаем игру
+        (balance, bets, playersCardsScores) = Scoring(balance, bets, playersCardsScores, playersNames); //подсчитываем и сообщаем резульаты раунда
+        Console.WriteLine();
+        resumeGame = UserAnswer("Следующий раунд? (напишите \"y\" если да, все что угодно другое если нет");
+    }
 }
 
 //Код игры
-void RunGame(int numDecks, string[] playersNames)
+int[] RunGame(int numDecks, string[] playersNames)
 {
     int[] deck = Mixing(52, numDecks);
     (int[,] playersDecks, int nextCard) = SetUp(playersNames, deck);
-    Console.WriteLine(String.Join(',', (Round(deck, playersDecks, playersNames, nextCard))));
+    return Round(deck, playersDecks, playersNames, nextCard);
 }
 
 InitGame();
