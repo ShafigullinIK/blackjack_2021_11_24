@@ -144,26 +144,26 @@ int[] Round(int[] deck, int[,] playersDecks, string[] playersNames, int nextCard
     return (playersCardsScores);
 }
 
-(int, int) GamePlayer(int playerIndex, string[] playersNames, int[,] playersDecks, int[] Deck, int nextCard)
+(int, int) GamePlayer(int playerIndex, string[] playersNames, int[,] playersDecks, int[] Deck, int nextCard) // метод основного процесса игры
 {
-    int[] cardsArray = new int[playersDecks.GetLength(1)];
+    int[] cardsArray = new int[playersDecks.GetLength(1)];// создаем одномерный массив карт для текущего игрока (нужен для передачи значений в метод CardsScore
 
     Console.Clear();
     Console.Write($"У игрока {playersNames[playerIndex]} выпали карты: ");
 
-    for (int i = 0; i < 2; i++)
-    {
+    for (int i = 0; i < 2; i++) // цикл заполнения одгомерного массива карт из общего двумерного массива значений, и отображения игроку его карт
+    {                           // так как при инициализации по правилам раздается две карты, то цикл до 2
         cardsArray[i] = playersDecks[playerIndex, i];
         Console.Write($"{CardNames(cardsArray[i])} ");
     }
-    int playerCardsScore = CardsScore(cardsArray);
+    int playerCardsScore = CardsScore(cardsArray);// проверяем перед игрой значение очков игрока для полученных двух карт
     Console.WriteLine(); Console.WriteLine($"Сумма очков: {CardsScore(cardsArray)} ");
 
-    if (CardsScore(cardsArray) > 21) return (playerCardsScore, nextCard);
-
-    for (int j = 2; j < playersDecks.GetLength(1); j++)
+    if (CardsScore(cardsArray) > 21) return (playerCardsScore, nextCard); // если сумма очков превышает 21, то возвращаемся в Round, 
+                                                                          // переключаем игру на следующего игрока
+    for (int j = 2; j < playersDecks.GetLength(1); j++)// если сумма очков не превышает 21, то запускаем цикл заполнения одномерного массива, начиная с третьего эл-та
     {
-        if (playerIndex == playersNames.Length - 1)
+        if (playerIndex == playersNames.Length - 1)// проверяем текущий игрок - крупье? (последний в массиве игроков)
         {
             CheckIn(j, playerIndex, playerCardsScore, nextCard, cardsArray, Deck, playersDecks); nextCard--;
             Thread.Sleep(2500);
@@ -192,11 +192,11 @@ int[] Round(int[] deck, int[,] playersDecks, string[] playersNames, int nextCard
 
 int[] CheckIn(int count, int playerIndex, int playerCardsScore, int nextCard, int[] cardsArray, int[] Deck, int[,] playersDecks)
 {
-    cardsArray[count] = Deck[nextCard];
-    playersDecks[playerIndex, count] = Deck[nextCard--];
-    Console.Write($"Выпала карта: {CardNames(cardsArray[count])} ");
+    cardsArray[count] = Deck[nextCard]; // кладем карту из колоды в колоду игроку
+    playersDecks[playerIndex, count] = Deck[nextCard]; // то же для двумерного массива
+    Console.Write($"Выпала карта: {CardNames(cardsArray[count])} "); // отображение в консоли для игрока
     Console.WriteLine($"Сумма очков: {CardsScore(cardsArray)} ");
-    playerCardsScore = CardsScore(cardsArray);
+    playerCardsScore = CardsScore(cardsArray);// отправляем одномерный массив для подсчета очков
     return cardsArray;
 }
 
