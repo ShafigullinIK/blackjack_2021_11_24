@@ -185,26 +185,3 @@ while (round >= 0)
     Console.WriteLine($"Осталось {round} раунд{Ending(round)}!");
     Thread.Sleep(2000);
 }
-
-
-
-
-
-/*
-int[] KA = { 5, 7, 3, 9, 4, 2, 10, 8, 1 };
-int[] p1, p2;
-int b1 = 1;
-int b2 = 2;
-PlayerKart(KA, out p1, out p2);
-Console.Write("Игрок 1 ваши карты: ");
-Print(p1, b1);
-Console.Write("Игрок 2 ваши карты: ");
-Print(p2, b2);
-Console.WriteLine();
-AddKart(KA, p1, b1);
-Console.Write("Итого у игрока 1: ");
-Print(p1, b1);
-AddKart(KA, p2, b2);
-Console.Write("Итого у игрока 2:");
-Print(p2, b2);
-*/
