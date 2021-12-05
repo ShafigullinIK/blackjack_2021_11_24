@@ -117,7 +117,7 @@ int[] Round(int[] deck, int[,] playersDecks, string[] playersNames, int nextCard
         if (j == playersDecks.GetLength(0) - 1)
         {
             Console.Write($"{playersNames[j]}: ");
-            cardsArray[j] = playersDecks[j, 0];
+            cardsArray[0] = playersDecks[j, 0];
             Console.Write($"{CardNames(cardsArray[0])} ");
         }
         else
@@ -345,5 +345,5 @@ int[] RunGame(int numDecks, string[] playersNames)
     (int[,] playersDecks, int nextCard) = SetUp(playersNames, deck);
     return Round(deck, playersDecks, playersNames, nextCard);
 }
-
+Console.Clear();
 InitGame();
