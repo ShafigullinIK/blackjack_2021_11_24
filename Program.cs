@@ -26,7 +26,9 @@ int[] newcurGameDeck = new int[originalGameDeck.Length - playerSet1.Length];
 newcurGameDeck = RemoveCards(playerSet1, curGameDeck);
 
 //игра игрока 2
-playerSet2 = MakeMove(2, newcurGameDeck, originalGameDeck);
+//playerSet2 = MakeMove(2, newcurGameDeck, originalGameDeck);
+playerSet2 = RobotMove(newcurGameDeck, originalGameDeck);
+
 
 // подведение итогов игры
 ResultDec(playerSet1, playerSet2);
@@ -138,6 +140,47 @@ int[] MakeMove(int playerNum, int[] curDeck, int[] originalDeck)
     Console.Write($"Your card is : ");
     PrintCard(playerSet[count], originalDeck);
     count++;
+  }
+  int[] res = new int[count];
+  for (int i = 0; i < playerSet.Length; i++)
+  {
+    if (playerSet[i] != 0) res[i] = playerSet[i];
+  }
+
+  return res;
+}
+
+//
+// сделать ход - взять карту
+//
+int[] RobotMove(int[] curDeck, int[] originalDeck)
+{
+  //ConsoleKeyInfo inch;
+  int[] playerSet = new int[curDeck.Length];
+  FillArray(playerSet);
+  int risk = 0;
+  Console.WriteLine();
+  Console.WriteLine("Attention Robot is playing!!!");
+  Console.WriteLine("Enter risk level of the Robot (1 - 9)");
+  do
+  {
+    risk = Convert.ToInt16(Console.ReadLine());
+  } while (risk <= 0 && risk > 10);
+
+  int count = 0;
+
+  //  89 - Y  78 - N Convert.ToInt32(inch.Key) == 78
+  while (count < curDeck.Length && count < 10 + risk)
+  {
+    Console.WriteLine();
+    // Console.WriteLine($"Игрок {playerNum} Press any key to pull your card, 'N' - exit");
+    // inch = Console.ReadKey();
+    // if (Convert.ToInt32(inch.Key) == 78) break;
+    playerSet[count] = curDeck[count];
+    Console.WriteLine();
+    Console.Write($"Your card is : ");
+    PrintCard(playerSet[count], originalDeck);
+    count = count + CardPoint(playerSet[count]);
   }
   int[] res = new int[count];
   for (int i = 0; i < playerSet.Length; i++)
