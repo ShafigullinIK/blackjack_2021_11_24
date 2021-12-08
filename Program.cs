@@ -55,7 +55,21 @@ int TakeCardFromPack(int[] pack_of_cards)
 
 void ShowCard(int card, int points)
 {
-    System.Console.WriteLine($"Ваша карта {card}, всего очков {points}.");
+    string[] card_name = new string[] { "валет", "дама", "король", "туз" };
+    string[] card_suit = new string[] { "черви", "треф", "пики", "буба" };
+    Random rand = new Random();
+    if (card == 10)
+    {
+
+        System.Console.WriteLine($"Ваша карта << {card_name[rand.Next(0, 3)]} {card_suit[rand.Next(0, 4)]} >>, всего очков {points}.");
+        return;
+    }
+    if (card == 1 || card == 11)
+    {
+        System.Console.WriteLine($"Ваша карта << {card_name[3]} {card_suit[rand.Next(0, 4)]} >>, всего очков {points}.");
+        return;
+    }
+    System.Console.WriteLine($"Ваша карта << {card} {card_suit[rand.Next(0, 4)]} >>, всего очков {points}.");
 }
 
 bool MoreCards()
@@ -96,6 +110,7 @@ int CasinoTakesCards(int[] pack_of_cards, int players_result)
     do
     {
         card = TakeCardFromPack(pack_of_cards);
+        if ((card == 11) && (points > 10)) card = 1; //Это туз дает 1 очко
         points += card;
         ShowCard(card, points);
         if (points > 21) return 0;
