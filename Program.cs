@@ -34,6 +34,7 @@ string CardNames(int numCard)
     return CardNames[numCard];
 }
 
+
 int RequestNumber(string words) // ввод чисел с проверкой
 {
     while (true)
