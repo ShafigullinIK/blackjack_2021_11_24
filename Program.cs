@@ -348,7 +348,7 @@ string WinLossMessage(int winLossValue, int betValue, string playerName, int bal
 }
 
 (int[], string[]) Correction(int[] balance, string[] playersNames) //Данный метод удаляет игроков с нулевым балансом из игры
-{
+{                                                                  // и завершает игру, когда у последнего игрока нулевой баланс.
     int count = 0;
     for (int k = 0; k < balance.Length; k++)
     { if (balance[k] == 0) count++;}
