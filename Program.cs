@@ -352,22 +352,24 @@ string WinLossMessage(int winLossValue, int betValue, string playerName, int bal
     int count = 0;
     for (int k = 0; k < balance.Length; k++)
     { if (balance[k] == 0) count++;}
-
-    for (int i = 0; i < count; i++)
+    if (count > 0)
     {
-        for (int j=0; j < balance.Length - 1; j++)
+        for (int i = 0; i < count; i++)
         {
-            if (balance[j]==0)
+            for (int j=0; j < balance.Length - 1; j++)
             {
-                balance[j] = balance[j + 1];
-                playersNames[j] = playersNames[j + 1];
-                balance[j + 1] = 0;
+                if (balance[j]==0)
+                {
+                    balance[j] = balance[j + 1];
+                    playersNames[j] = playersNames[j + 1];
+                    balance[j + 1] = 0;
+                }
             }
         }
-    }
-    Array.Resize(ref balance, balance.Length - count);
-    Array.Resize(ref playersNames, playersNames.Length - count);
-    playersNames[playersNames.Length - 1] = "Крупье";
+        Array.Resize(ref balance, balance.Length - count);
+        Array.Resize(ref playersNames, playersNames.Length - count);
+        playersNames[playersNames.Length - 1] = "Крупье";
+    }    
     return (balance, playersNames);
 }
 
