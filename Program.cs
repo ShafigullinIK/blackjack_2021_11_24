@@ -82,6 +82,7 @@ int[] MakeBets(string[] playersNames, int[] balance) //опрос всех иг�
 
 int AskForBet(string playerName, int playerBalance) //метод опроса отдельного игрока, переспрашивает пока ставка не будет больше 0 и меньше баланса.
 {
+    if (playerBalance==0) return 0;
     while (true)
     {
         int betAmount = RequestNumber($"{playerName} у вас {playerBalance} фишек, делайте вашу ставку: ");
@@ -137,10 +138,12 @@ int[] Round(int[] deck, int[,] playersDecks, string[] playersNames, int nextCard
     {
         (int playerCardsScore, nextCard) = GamePlayer(i, playersNames, playersDecks, deck, nextCard);
         playersCardsScores[i] = playerCardsScore;
+
         if (i < playersDecks.GetLength(0) - 1)
         { Console.Clear(); Console.WriteLine("ПЕРЕХОД ХОДА"); }
         if (i == playersDecks.GetLength(0) - 1)
         { Console.WriteLine("Нажмите любую клавишу"); Console.ReadKey(); }
+
         Thread.Sleep(1000);
     }
     return (playersCardsScores);
@@ -159,16 +162,24 @@ int[] Round(int[] deck, int[,] playersDecks, string[] playersNames, int nextCard
         Console.Write($"{CardNames(cardsArray[i])} ");
     }
     int playerCardsScore = CardsScore(cardsArray, 2);// проверяем перед игрой значение очков игрока для полученных двух карт
+
     Console.WriteLine(); Console.WriteLine($"Сумма очков: {playerCardsScore} ");
+    if ((CardsScore(cardsArray, 2) == 99))
+    {
+        Console.WriteLine("Блэкджэк!!!"); Thread.Sleep(2500);
+        Console.WriteLine("нажмите любую клавишу"); Console.ReadKey();
+    }
 
     if (CardsScore(cardsArray, 2) >= 21) return (playerCardsScore, nextCard); // если сумма очков превышает 21, то возвращаемся в Round, 
                                                                               // переключаем игру на следующего игрока
+    if (CardsScore(cardsArray, 2) >= 17 && playerIndex == playersNames.Length - 1) return (playerCardsScore, nextCard);
     for (int j = 2; j < playersDecks.GetLength(1); j++)// если сумма очков не превышает 21, то запускаем цикл заполнения одномерного массива, начиная с третьего эл-та
     {
         if (playerIndex == playersNames.Length - 1)// проверяем текущий игрок - крупье? (последний в массиве игроков)
         {
             CheckIn(j, playerIndex, playerCardsScore, nextCard, cardsArray, Deck, playersDecks); nextCard--;
             Thread.Sleep(2500);
+
             if (CardsScore(cardsArray, 0) >= 17)
             {
                 playerCardsScore = CardsScore(cardsArray, 0);
@@ -181,6 +192,7 @@ int[] Round(int[] deck, int[,] playersDecks, string[] playersNames, int nextCard
             {
                 CheckIn(j, playerIndex, playerCardsScore, nextCard, cardsArray, Deck, playersDecks); nextCard--;
                 Thread.Sleep(2500);
+
                 if (CardsScore(cardsArray, 0) >= 21)
                 {
                     playerCardsScore = CardsScore(cardsArray, 0);
@@ -200,6 +212,7 @@ int[] Round(int[] deck, int[,] playersDecks, string[] playersNames, int nextCard
 }
 
 int[] CheckIn(int count, int playerIndex, int playerCardsScore, int nextCard, int[] cardsArray, int[] Deck, int[,] playersDecks)
+
 {
     cardsArray[count] = Deck[nextCard]; // кладем карту из колоды в колоду игроку
     // playersDecks[playerIndex, count] = Deck[nextCard]; // то же для двумерного массива
@@ -211,6 +224,7 @@ int[] CheckIn(int count, int playerIndex, int playerCardsScore, int nextCard, in
 
 bool UserAnswer(string MessageValue)                             //метод (процедура) ожидание ответа пользователя
 {
+
     Console.WriteLine(MessageValue);
     while (true)
     {
@@ -221,7 +235,9 @@ bool UserAnswer(string MessageValue)                             //метод (�
 
 // Метод подсчёта наибольшей суммы очков с заданных карт, на входе массив карт заданных как числа (2-14)
 // Для определения блэкджека от суммы 21, результат при блэкджеке =99 (недостижимый простым подсчётом карт)
+
 int CardsScore(int[] cardsArray, int firstGame)
+
 {
     int len = cardsArray.Length;
     int aceCount = 0;
@@ -243,7 +259,9 @@ int CardsScore(int[] cardsArray, int firstGame)
                 break;
         }
     }
+
     if (totalScore == 21 && firstGame == 2) { return 99; }  //указатель для отличия БлэкДжека от просто суммы 21
+
     while (totalScore > 21 && aceCount > 0)         //если по итогам получили перебор за каждого туза вычитам 10 (начинаем считать его как 1), пока не закончатся тузы или не окажемся ниже 21
     {
         totalScore -= 10;
@@ -299,6 +317,7 @@ string WinLossMessage(int winLossValue, int betValue, string playerName, int bal
             return $"{playerName} у Вас Блэкджек и Ваша ставка {betValue} выиграла Вам {betValue * 3 / 2}. Теперь у Вас {balance} фишек."; //результат выигрышь 3 к 2 (по Блэкджеку), копейки остаются у казино
         default:
             return "Ситуация которой не должно случиться, если Вы это читаете, что-то пошло не так"; //результат которого не должно быть!
+
     }
 }
 
