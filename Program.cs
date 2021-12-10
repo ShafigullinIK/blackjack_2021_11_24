@@ -34,7 +34,6 @@ string CardNames(int numCard)
     return CardNames[numCard];
 }
 
-
 int RequestNumber(string words) // ввод чисел с проверкой
 {
     while (true)
@@ -83,6 +82,7 @@ int[] MakeBets(string[] playersNames, int[] balance) //опрос всех иг�
 
 int AskForBet(string playerName, int playerBalance) //метод опроса отдельного игрока, переспрашивает пока ставка не будет больше 0 и меньше баланса.
 {
+    // if (playerBalance == 0) return 0;
     while (true)
     {
         int betAmount = RequestNumber($"{playerName} у вас {playerBalance} фишек, делайте вашу ставку: ");
@@ -138,10 +138,12 @@ int[] Round(int[] deck, int[,] playersDecks, string[] playersNames, int nextCard
     {
         (int playerCardsScore, nextCard) = GamePlayer(i, playersNames, playersDecks, deck, nextCard);
         playersCardsScores[i] = playerCardsScore;
+
         if (i < playersDecks.GetLength(0) - 1)
         { Console.Clear(); Console.WriteLine("ПЕРЕХОД ХОДА"); }
         if (i == playersDecks.GetLength(0) - 1)
         { Console.WriteLine("Нажмите любую клавишу"); Console.ReadKey(); }
+
         Thread.Sleep(1000);
     }
     return (playersCardsScores);
@@ -160,16 +162,24 @@ int[] Round(int[] deck, int[,] playersDecks, string[] playersNames, int nextCard
         Console.Write($"{CardNames(cardsArray[i])} ");
     }
     int playerCardsScore = CardsScore(cardsArray, 2);// проверяем перед игрой значение очков игрока для полученных двух карт
+
     Console.WriteLine(); Console.WriteLine($"Сумма очков: {playerCardsScore} ");
+    if ((CardsScore(cardsArray, 2) == 99))
+    {
+        Console.WriteLine("Блэкджэк!!!"); Thread.Sleep(2500);
+        // Console.WriteLine("нажмите любую клавишу"); Console.ReadKey();
+    }
 
     if (CardsScore(cardsArray, 2) >= 21) return (playerCardsScore, nextCard); // если сумма очков превышает 21, то возвращаемся в Round, 
                                                                               // переключаем игру на следующего игрока
+    if (CardsScore(cardsArray, 2) >= 17 && playerIndex == playersNames.Length - 1) return (playerCardsScore, nextCard);
     for (int j = 2; j < playersDecks.GetLength(1); j++)// если сумма очков не превышает 21, то запускаем цикл заполнения одномерного массива, начиная с третьего эл-та
     {
         if (playerIndex == playersNames.Length - 1)// проверяем текущий игрок - крупье? (последний в массиве игроков)
         {
             CheckIn(j, playerIndex, playerCardsScore, nextCard, cardsArray, Deck, playersDecks); nextCard--;
             Thread.Sleep(2500);
+
             if (CardsScore(cardsArray, 0) >= 17)
             {
                 playerCardsScore = CardsScore(cardsArray, 0);
@@ -182,6 +192,7 @@ int[] Round(int[] deck, int[,] playersDecks, string[] playersNames, int nextCard
             {
                 CheckIn(j, playerIndex, playerCardsScore, nextCard, cardsArray, Deck, playersDecks); nextCard--;
                 Thread.Sleep(2500);
+
                 if (CardsScore(cardsArray, 0) >= 21)
                 {
                     playerCardsScore = CardsScore(cardsArray, 0);
@@ -201,6 +212,7 @@ int[] Round(int[] deck, int[,] playersDecks, string[] playersNames, int nextCard
 }
 
 int[] CheckIn(int count, int playerIndex, int playerCardsScore, int nextCard, int[] cardsArray, int[] Deck, int[,] playersDecks)
+
 {
     cardsArray[count] = Deck[nextCard]; // кладем карту из колоды в колоду игроку
     // playersDecks[playerIndex, count] = Deck[nextCard]; // то же для двумерного массива
@@ -212,6 +224,7 @@ int[] CheckIn(int count, int playerIndex, int playerCardsScore, int nextCard, in
 
 bool UserAnswer(string MessageValue)                             //метод (процедура) ожидание ответа пользователя
 {
+
     Console.WriteLine(MessageValue);
     while (true)
     {
@@ -222,7 +235,9 @@ bool UserAnswer(string MessageValue)                             //метод (�
 
 // Метод подсчёта наибольшей суммы очков с заданных карт, на входе массив карт заданных как числа (2-14)
 // Для определения блэкджека от суммы 21, результат при блэкджеке =99 (недостижимый простым подсчётом карт)
+
 int CardsScore(int[] cardsArray, int firstGame)
+
 {
     int len = cardsArray.Length;
     int aceCount = 0;
@@ -244,7 +259,9 @@ int CardsScore(int[] cardsArray, int firstGame)
                 break;
         }
     }
+
     if (totalScore == 21 && firstGame == 2) { return 99; }  //указатель для отличия БлэкДжека от просто суммы 21
+
     while (totalScore > 21 && aceCount > 0)         //если по итогам получили перебор за каждого туза вычитам 10 (начинаем считать его как 1), пока не закончатся тузы или не окажемся ниже 21
     {
         totalScore -= 10;
@@ -291,15 +308,16 @@ string WinLossMessage(int winLossValue, int betValue, string playerName, int bal
     switch (winLossValue)
     {
         case -1:
-            return $"{playerName} ваша ставка {betValue} проиграна. У вас осталось {balance} фишек."; //результат проигрыш
+            return $"{playerName} Ваша ставка {betValue} проиграна. У Вас осталось {balance} фишек."; //результат проигрыш
         case 0:
-            return $"{playerName} сыграл в ничью. У вас всё так же {balance} фишек."; //результат ничья
+            return $"{playerName} сыграл в ничью. У Вас всё так же {balance} фишек."; //результат ничья
         case 1:
-            return $"{playerName} выша ставка {betValue} выиграла и принесла вам {betValue}. Теперь у вас {balance} фишек.";  //результат выигрышь 1 к 1  
+            return $"{playerName} Ваша ставка {betValue} выиграла и принесла Вам {betValue}. Теперь у Вас {balance} фишек.";  //результат выигрышь 1 к 1  
         case 2:
-            return $"{playerName} у вас Блэкджек и ваша ставка {betValue} выиграла вам {betValue * 3 / 2}. Теперь у вас {balance} фишек."; //результат выигрышь 3 к 2 (по Блэкджеку), копейки остаются у казино
+            return $"{playerName} у Вас Блэкджек и Ваша ставка {betValue} выиграла Вам {betValue * 3 / 2}. Теперь у Вас {balance} фишек."; //результат выигрышь 3 к 2 (по Блэкджеку), копейки остаются у казино
         default:
-            return "Ситуация которой не должно случиться, если вы это читаете, что-то пошло не так"; //результат которого не должно быть!
+            return "Ситуация которой не должно случиться, если Вы это читаете, что-то пошло не так"; //результат которого не должно быть!
+
     }
 }
 
@@ -329,6 +347,30 @@ string WinLossMessage(int winLossValue, int betValue, string playerName, int bal
     return (balance, bets, playersCardsScores);
 }
 
+(int[], string[]) Correction(int[] balance, string[] playersNames) //Данный метод удаляет игроков с нулевым балансом из игры
+{
+    int count = 0;
+    for (int k = 0; k < balance.Length; k++)
+    { if (balance[k] == 0) count++;}
+
+    for (int i = 0; i < count; i++)
+    {
+        for (int j=0; j < balance.Length - 1; j++)
+        {
+            if (balance[j]==0)
+            {
+                balance[j] = balance[j + 1];
+                playersNames[j] = playersNames[j + 1];
+                balance[j + 1] = 0;
+            }
+        }
+    }
+    Array.Resize(ref balance, balance.Length - count);
+    Array.Resize(ref playersNames, playersNames.Length - count);
+    playersNames[playersNames.Length - 1] = "Крупье";
+    return (balance, playersNames);
+}
+
 void InitGame()
 {
     (string[] playersNames, int numDecks, int[] balance) = Greetings(); //передаём результат кортежа в переменные
@@ -343,8 +385,18 @@ void InitGame()
         bets = MakeBets(playersNames, balance); //заполняем массив принятых ставок
         playersCardsScores = RunGame(numDecks, playersNames); //запускаем игру
         (balance, bets, playersCardsScores) = Scoring(balance, bets, playersCardsScores, playersNames); //подсчитываем и сообщаем резульаты раунда
-        Console.WriteLine();
-        resumeGame = UserAnswer("Следующий раунд? (напишите \"y\" если да, все что угодно другое если нет)");
+        (balance, playersNames) = Correction(balance, playersNames);
+        if (balance.Length==0)
+        {
+            resumeGame = false;
+            System.Console.WriteLine("G A M E    O V E R!");
+            Thread.Sleep(2500);
+        }
+        else 
+        {
+            resumeGame = UserAnswer("Следующий раунд? (напишите \"y\" если да, все что угодно другое если нет)");
+        }
+        
     }
 }
 
