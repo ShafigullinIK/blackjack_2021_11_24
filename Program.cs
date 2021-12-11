@@ -1,8 +1,9 @@
-int[] Mixing(int numCards, int numDecks)
+(int[], int[,]) Mixing(int numCards, int numDecks)
 {
     int j, temp, fromValueCard; int count = 0; int[] Deck = new int[numCards * numDecks];
 
     if (numCards == 52) fromValueCard = 2; else fromValueCard = 6;
+    int[,] cardSuits = new int[4 * numDecks, 15-fromValueCard];
 
     for (int k = 0; k < 4 * numDecks; k++)
     { for (int n = fromValueCard; n < 15; n++) { Deck[count] = n; count += 1; } }
@@ -10,28 +11,59 @@ int[] Mixing(int numCards, int numDecks)
     for (int i = 0; i < Deck.Length; i++)
     { temp = Deck[i]; j = new Random().Next(i, Deck.Length); Deck[i] = Deck[j]; Deck[j] = temp; }
 
-    return Deck;
+    return (Deck, cardSuits);
 }
 
-string CardNames(int numCard)
+string CardNames(int numCard, int[,] cardSuits)
 {
+    string cardNames = String.Empty;
     Dictionary<int, string> CardNames = new Dictionary<int, string>
     {
-        [2] = "Двойка",
-        [3] = "Тройка",
-        [4] = "Четверка",
-        [5] = "Пятерка",
-        [6] = "Шестерка",
-        [7] = "Семерка",
-        [8] = "Восьмерка",
-        [9] = "Девятка",
-        [10] = "Десятка",
-        [11] = "Туз",
-        [12] = "Валет",
-        [13] = "Дама",
-        [14] = "Король",
+        [2] = "Двойка ",
+        [3] = "Тройка  ",
+        [4] = "Четверка  ",
+        [5] = "Пятерка  ",
+        [6] = "Шестерка  ",
+        [7] = "Семерка  ",
+        [8] = "Восьмерка  ",
+        [9] = "Девятка  ",
+        [10] = "Десятка  ",
+        [11] = "Туз  ",
+        [12] = "Валет  ",
+        [13] = "Дама  ",
+        [14] = "Король  ",
     };
-    return CardNames[numCard];
+    cardNames = CardNames[numCard] + CardSuit(numCard, cardSuits);
+    return cardNames;
+}
+
+string CardSuit(int numCard, int[,] cardSuits)
+{
+    int count = 0; int rnd = 0;
+    string cardNames= String.Empty;
+    Random r = new Random();
+    do
+    {
+        rnd = r.Next(1, 5);
+        for (int i = 0; i < cardSuits.GetLength(0); i++)
+        { if (cardSuits[i, numCard - 2] == rnd) count++; } 
+        if (count < cardSuits.GetLength(0) / 4) break;
+    }
+    while (count == cardSuits.GetLength(0) / 4);
+
+    for (int j = 0; j < cardSuits.GetLength(0); j++)
+    {
+        if (cardSuits[j, numCard - 2] == 0)
+        {
+            cardSuits[j, numCard - 2] = rnd;
+            j = cardSuits.GetLength(1);
+        }
+    }
+    if (rnd == 1) cardNames = "♥";
+    if (rnd == 2) cardNames = "♦";
+    if (rnd == 3) cardNames =  "♣";
+    if (rnd == 4) cardNames =  "♠";
+    return cardNames;
 }
 
 int RequestNumber(string words) // ввод чисел с проверкой
@@ -106,7 +138,7 @@ int AskForBet(string playerName, int playerBalance) //метод опроса о
     return (playersDecks, nextCard);
 }
 
-int[] Round(int[] deck, int[,] playersDecks, string[] playersNames, int nextCard)
+int[] Round(int[] deck, int[,] playersDecks, string[] playersNames, int nextCard, int[,] cardSuits)
 {
     int[] playersCardsScores = new int[playersDecks.GetLength(0)];
     int[] cardsArray = new int[playersDecks.GetLength(1)];
@@ -119,7 +151,7 @@ int[] Round(int[] deck, int[,] playersDecks, string[] playersNames, int nextCard
         {
             Console.Write($"{playersNames[j]}: ");
             cardsArray[0] = playersDecks[j, 0];
-            Console.Write($"{CardNames(cardsArray[0])} ");
+            Console.Write($"{CardNames(cardsArray[0], cardSuits)} ");
         }
         else
         {
@@ -127,7 +159,7 @@ int[] Round(int[] deck, int[,] playersDecks, string[] playersNames, int nextCard
             for (int i = 0; i < 2; i++)
             {
                 cardsArray[i] = playersDecks[j, i];
-                Console.Write($"{CardNames(cardsArray[i])} ");
+                Console.Write($"{CardNames(cardsArray[i], cardSuits)} ");
             }
         }
         Console.WriteLine();
@@ -136,7 +168,7 @@ int[] Round(int[] deck, int[,] playersDecks, string[] playersNames, int nextCard
 
     for (int i = 0; i < playersDecks.GetLength(0); i++)
     {
-        (int playerCardsScore, nextCard) = GamePlayer(i, playersNames, playersDecks, deck, nextCard);
+        (int playerCardsScore, nextCard) = GamePlayer(i, playersNames, playersDecks, deck, nextCard, cardSuits);
         playersCardsScores[i] = playerCardsScore;
 
         if (i < playersDecks.GetLength(0) - 1)
@@ -149,7 +181,7 @@ int[] Round(int[] deck, int[,] playersDecks, string[] playersNames, int nextCard
     return (playersCardsScores);
 }
 
-(int, int) GamePlayer(int playerIndex, string[] playersNames, int[,] playersDecks, int[] Deck, int nextCard) // метод основного процесса игры
+(int, int) GamePlayer(int playerIndex, string[] playersNames, int[,] playersDecks, int[] Deck, int nextCard, int[,] cardSuits) // метод основного процесса игры
 {
     int[] cardsArray = new int[playersDecks.GetLength(1)];// создаем одномерный массив карт для текущего игрока (нужен для передачи значений в метод CardsScore
 
@@ -159,7 +191,7 @@ int[] Round(int[] deck, int[,] playersDecks, string[] playersNames, int nextCard
     for (int i = 0; i < 2; i++) // цикл заполнения одгомерного массива карт из общего двумерного массива значений, и отображения игроку его карт
     {                           // так как при инициализации по правилам раздается две карты, то цикл до 2
         cardsArray[i] = playersDecks[playerIndex, i];
-        Console.Write($"{CardNames(cardsArray[i])} ");
+        Console.Write($"{CardNames(cardsArray[i], cardSuits)} ");
     }
     int playerCardsScore = CardsScore(cardsArray, 2);// проверяем перед игрой значение очков игрока для полученных двух карт
 
@@ -177,7 +209,7 @@ int[] Round(int[] deck, int[,] playersDecks, string[] playersNames, int nextCard
     {
         if (playerIndex == playersNames.Length - 1)// проверяем текущий игрок - крупье? (последний в массиве игроков)
         {
-            CheckIn(j, playerIndex, playerCardsScore, nextCard, cardsArray, Deck, playersDecks); nextCard--;
+            CheckIn(j, playerIndex, playerCardsScore, nextCard, cardsArray, Deck, playersDecks, cardSuits); nextCard--;
             Thread.Sleep(2500);
 
             if (CardsScore(cardsArray, 0) >= 17)
@@ -190,7 +222,7 @@ int[] Round(int[] deck, int[,] playersDecks, string[] playersNames, int nextCard
         {
             if (UserAnswer("Берем карту? (напишите \"y\" если да, все что угодно другое если нет)"))
             {
-                CheckIn(j, playerIndex, playerCardsScore, nextCard, cardsArray, Deck, playersDecks); nextCard--;
+                CheckIn(j, playerIndex, playerCardsScore, nextCard, cardsArray, Deck, playersDecks, cardSuits); nextCard--;
                 Thread.Sleep(2500);
 
                 if (CardsScore(cardsArray, 0) >= 21)
@@ -211,12 +243,12 @@ int[] Round(int[] deck, int[,] playersDecks, string[] playersNames, int nextCard
     return (playerCardsScore, nextCard);
 }
 
-int[] CheckIn(int count, int playerIndex, int playerCardsScore, int nextCard, int[] cardsArray, int[] Deck, int[,] playersDecks)
+int[] CheckIn(int count, int playerIndex, int playerCardsScore, int nextCard, int[] cardsArray, int[] Deck, int[,] playersDecks, int[,] cardSuits)
 
 {
     cardsArray[count] = Deck[nextCard]; // кладем карту из колоды в колоду игроку
     // playersDecks[playerIndex, count] = Deck[nextCard]; // то же для двумерного массива
-    Console.Write($"Выпала карта: {CardNames(cardsArray[count])} "); // отображение в консоли для игрока
+    Console.Write($"Выпала карта: {CardNames(cardsArray[count], cardSuits)} "); // отображение в консоли для игрока
     Console.WriteLine($"Сумма очков: {CardsScore(cardsArray, 0)} ");
     playerCardsScore = CardsScore(cardsArray, 0);// отправляем одномерный массив для подсчета очков
     return cardsArray;
@@ -347,18 +379,19 @@ string WinLossMessage(int winLossValue, int betValue, string playerName, int bal
     return (balance, bets, playersCardsScores);
 }
 
-(int[], string[]) Correction(int[] balance, string[] playersNames) //Данный метод удаляет игроков с нулевым балансом из игры
-{                                                                  // и завершает игру, когда у последнего игрока нулевой баланс.
+(int[], string[]) Correction(int[] balance, string[] playersNames)//метод Correction который удаляет игроков 
+// с нулевым балансом из игры и завершает игру по достижению нулевого баланса последним игроком.
+{
     int count = 0;
     for (int k = 0; k < balance.Length; k++)
-    { if (balance[k] == 0) count++;}
+    { if (balance[k] == 0) count++; }
     if (count > 0)
     {
         for (int i = 0; i < count; i++)
         {
-            for (int j=0; j < balance.Length - 1; j++)
+            for (int j = 0; j < balance.Length - 1; j++)
             {
-                if (balance[j]==0)
+                if (balance[j] == 0)
                 {
                     balance[j] = balance[j + 1];
                     playersNames[j] = playersNames[j + 1];
@@ -369,7 +402,7 @@ string WinLossMessage(int winLossValue, int betValue, string playerName, int bal
         Array.Resize(ref balance, balance.Length - count);
         Array.Resize(ref playersNames, playersNames.Length - count);
         playersNames[playersNames.Length - 1] = "Крупье";
-    }    
+    }
     return (balance, playersNames);
 }
 
@@ -388,26 +421,28 @@ void InitGame()
         playersCardsScores = RunGame(numDecks, playersNames); //запускаем игру
         (balance, bets, playersCardsScores) = Scoring(balance, bets, playersCardsScores, playersNames); //подсчитываем и сообщаем резульаты раунда
         (balance, playersNames) = Correction(balance, playersNames);
-        if (balance.Length==0)
+        if (balance.Length == 0)
         {
             resumeGame = false;
-            System.Console.WriteLine("G A M E    O V E R!");
+            Console.WriteLine();
+            Console.WriteLine("G A M E    O V E R!");
+            Console.WriteLine();
             Thread.Sleep(2500);
         }
-        else 
+        else
         {
             resumeGame = UserAnswer("Следующий раунд? (напишите \"y\" если да, все что угодно другое если нет)");
         }
-        
+
     }
 }
 
 //Код игры
 int[] RunGame(int numDecks, string[] playersNames)
 {
-    int[] deck = Mixing(52, numDecks);
+    (int[] deck, int[,] cardSuits) = Mixing(52, numDecks);
     (int[,] playersDecks, int nextCard) = SetUp(playersNames, deck);
-    return Round(deck, playersDecks, playersNames, nextCard);
+    return Round(deck, playersDecks, playersNames, nextCard, cardSuits);
 }
 Console.Clear();
 InitGame();
