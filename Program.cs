@@ -3,7 +3,7 @@
     int j, temp, fromValueCard; int count = 0; int[] Deck = new int[numCards * numDecks];
 
     if (numCards == 52) fromValueCard = 2; else fromValueCard = 6;
-    int[,] cardSuits = new int[4 * numDecks, 15-fromValueCard];
+    int[,] cardSuits = new int[4 * numDecks, 15 - fromValueCard];
 
     for (int k = 0; k < 4 * numDecks; k++)
     { for (int n = fromValueCard; n < 15; n++) { Deck[count] = n; count += 1; } }
@@ -39,30 +39,32 @@ string CardNames(int numCard, int[,] cardSuits)
 
 string CardSuit(int numCard, int[,] cardSuits)
 {
-    int count = 0; int rnd = 0;
-    string cardNames= String.Empty;
+    int count = 0; int rnd = 0; int num = 0;
+    if (cardSuits.GetLength(1) == 9) num = 6;
+    else num = 2;
+    string cardNames = String.Empty;
     Random r = new Random();
     do
     {
         rnd = r.Next(1, 5);
         for (int i = 0; i < cardSuits.GetLength(0); i++)
-        { if (cardSuits[i, numCard - 2] == rnd) count++; } 
+        { if (cardSuits[i, numCard - num] == rnd) count++; }
         if (count < cardSuits.GetLength(0) / 4) break;
     }
     while (count == cardSuits.GetLength(0) / 4);
 
     for (int j = 0; j < cardSuits.GetLength(0); j++)
     {
-        if (cardSuits[j, numCard - 2] == 0)
+        if (cardSuits[j, numCard - num] == 0)
         {
-            cardSuits[j, numCard - 2] = rnd;
+            cardSuits[j, numCard - num] = rnd;
             j = cardSuits.GetLength(1);
         }
     }
     if (rnd == 1) cardNames = "♥";
     if (rnd == 2) cardNames = "♦";
-    if (rnd == 3) cardNames =  "♣";
-    if (rnd == 4) cardNames =  "♠";
+    if (rnd == 3) cardNames = "♣";
+    if (rnd == 4) cardNames = "♠";
     return cardNames;
 }
 
@@ -408,6 +410,13 @@ string WinLossMessage(int winLossValue, int betValue, string playerName, int bal
 
 void InitGame()
 {
+    Console.WriteLine("Добро пожаловать в игру Блэк Джэк!");
+    Thread.Sleep(2500);
+    int n = 0;
+    bool typeDeck = UserAnswer("Какой колодой будем играть? (Стандартная(52 карты) введите \"y\", Русская(36 карт) - любая клавиша)");
+    if (typeDeck) n = 52;
+    else n = 36;
+    
     (string[] playersNames, int numDecks, int[] balance) = Greetings(); //передаём результат кортежа в переменные
 
     int playersAmount = playersNames.Length;
@@ -418,7 +427,7 @@ void InitGame()
     while (resumeGame)
     {
         bets = MakeBets(playersNames, balance); //заполняем массив принятых ставок
-        playersCardsScores = RunGame(numDecks, playersNames); //запускаем игру
+        playersCardsScores = RunGame(numDecks, playersNames, n); //запускаем игру
         (balance, bets, playersCardsScores) = Scoring(balance, bets, playersCardsScores, playersNames); //подсчитываем и сообщаем резульаты раунда
         (balance, playersNames) = Correction(balance, playersNames);
         if (balance.Length == 0)
@@ -438,9 +447,9 @@ void InitGame()
 }
 
 //Код игры
-int[] RunGame(int numDecks, string[] playersNames)
+int[] RunGame(int numDecks, string[] playersNames, int n)
 {
-    (int[] deck, int[,] cardSuits) = Mixing(52, numDecks);
+    (int[] deck, int[,] cardSuits) = Mixing(n, numDecks);
     (int[,] playersDecks, int nextCard) = SetUp(playersNames, deck);
     return Round(deck, playersDecks, playersNames, nextCard, cardSuits);
 }
