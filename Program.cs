@@ -144,6 +144,8 @@ int[] Round(int[] deck, int[,] playersDecks, string[] playersNames, int nextCard
 {
     int[] playersCardsScores = new int[playersDecks.GetLength(0)];
     int[] cardsArray = new int[playersDecks.GetLength(1)];
+    string[] firstCardNames = new string[playersNames.Length];
+    string str = string.Empty;
 
     Console.Clear();
     Console.WriteLine("Р А С К Л А Д:");
@@ -153,7 +155,8 @@ int[] Round(int[] deck, int[,] playersDecks, string[] playersNames, int nextCard
         {
             Console.Write($"{playersNames[j]}: ");
             cardsArray[0] = playersDecks[j, 0];
-            Console.Write($"{CardNames(cardsArray[0], cardSuits)} ");
+            firstCardNames[playersNames.Length - 1] = CardNames(cardsArray[0], cardSuits);
+            Console.Write($"{firstCardNames[playersNames.Length - 1]} ");
         }
         else
         {
@@ -161,8 +164,10 @@ int[] Round(int[] deck, int[,] playersDecks, string[] playersNames, int nextCard
             for (int i = 0; i < 2; i++)
             {
                 cardsArray[i] = playersDecks[j, i];
-                Console.Write($"{CardNames(cardsArray[i], cardSuits)} ");
+                str = str + CardNames(cardsArray[i], cardSuits) + " ";
             }
+            firstCardNames[j] = str; Console.Write($"{str} ");
+            str = string.Empty;
         }
         Console.WriteLine();
     }
@@ -170,7 +175,7 @@ int[] Round(int[] deck, int[,] playersDecks, string[] playersNames, int nextCard
 
     for (int i = 0; i < playersDecks.GetLength(0); i++)
     {
-        (int playerCardsScore, nextCard) = GamePlayer(i, playersNames, playersDecks, deck, nextCard, cardSuits);
+        (int playerCardsScore, nextCard) = GamePlayer(i, playersNames, playersDecks, deck, nextCard, cardSuits, firstCardNames);
         playersCardsScores[i] = playerCardsScore;
 
         if (i < playersDecks.GetLength(0) - 1)
@@ -183,18 +188,20 @@ int[] Round(int[] deck, int[,] playersDecks, string[] playersNames, int nextCard
     return (playersCardsScores);
 }
 
-(int, int) GamePlayer(int playerIndex, string[] playersNames, int[,] playersDecks, int[] Deck, int nextCard, int[,] cardSuits) // метод основного процесса игры
+(int, int) GamePlayer(int playerIndex, string[] playersNames, int[,] playersDecks, int[] Deck, int nextCard, int[,] cardSuits, string[] firstCardNames) // метод основного процесса игры
 {
     int[] cardsArray = new int[playersDecks.GetLength(1)];// создаем одномерный массив карт для текущего игрока (нужен для передачи значений в метод CardsScore
 
     Console.Clear();
     Console.Write($"У игрока {playersNames[playerIndex]} выпали карты: ");
 
+    Console.Write(firstCardNames[playerIndex]);
     for (int i = 0; i < 2; i++) // цикл заполнения одгомерного массива карт из общего двумерного массива значений, и отображения игроку его карт
     {                           // так как при инициализации по правилам раздается две карты, то цикл до 2
         cardsArray[i] = playersDecks[playerIndex, i];
-        Console.Write($"{CardNames(cardsArray[i], cardSuits)} ");
+        if (playerIndex == playersNames.Length - 1 && i == 1) Console.Write($" {CardNames(cardsArray[i], cardSuits)}");
     }
+
     int playerCardsScore = CardsScore(cardsArray, 2);// проверяем перед игрой значение очков игрока для полученных двух карт
 
     Console.WriteLine(); Console.WriteLine($"Сумма очков: {playerCardsScore} ");
@@ -416,7 +423,7 @@ void InitGame()
     bool typeDeck = UserAnswer("Какой колодой будем играть? (Стандартная(52 карты) введите \"y\", Русская(36 карт) - любая клавиша)");
     if (typeDeck) n = 52;
     else n = 36;
-    
+
     (string[] playersNames, int numDecks, int[] balance) = Greetings(); //передаём результат кортежа в переменные
 
     int playersAmount = playersNames.Length;
